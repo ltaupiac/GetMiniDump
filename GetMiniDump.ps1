@@ -32,7 +32,7 @@ $toolsFolder = 'C:\Program Files\Debugging Tools for Windows\'
 
 
 $dumpAnalyseCmd = $toolsFolder+'BlueScreenView.exe'
-$params = "/LoadFrom 3 /SingleDumpFile /stext $outputAnalysis "
+$params = "/LoadFrom 3 /stext $outputAnalysis /SingleDumpFile "
 
 function as_local_system() {
     $id = [Security.Principal.WindowsIdentity]::GetCurrent()
