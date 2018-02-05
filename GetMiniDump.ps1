@@ -52,7 +52,7 @@ try {
     }
 
     # Check if tool is available
-    $dumpFile = Get-ChildItem $DumpFolder -Name -Filter *.dmp | sort | select -Last 1 
+    $dumpFile = Get-ChildItem $DumpFolder -Name -Filter *.dmp | sort LastWriteTime | select -Last 1 
     $params += $DumpFolder + $dumpFile
     if(-not(Test-Path $dumpAnalyseCmd)) {
         throw [System.ApplicationException] "Dump util is not installed"
