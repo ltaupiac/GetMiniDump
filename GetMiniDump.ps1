@@ -20,7 +20,7 @@ https://github.com/ltaupiac/GetMiniDump
 
 .NOTES
 Context: LocalSystem
-Version 1.0.0.0
+Version 1.0.0.1
 Author Laurent
 #>
 Add-Type -Path $env:NEXTHINK\RemoteActions\nxtremoteactions.dll
