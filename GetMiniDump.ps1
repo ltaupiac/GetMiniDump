@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
 Retrieves last mini dump informations from Act Nexthink action.
 
@@ -23,7 +23,22 @@ Context: LocalSystem
 Version 1.0.0.1
 Author Laurent
 #>
-Add-Type -Path $env:NEXTHINK\RemoteActions\nxtremoteactions.dll
+# Check if script is running on nexthink Client
+function Get-NexthinkStatus() {
+    # send info back to Nexthink engine:
+    $result=$false
+    $params = Get-ItemProperty "HKLM:\System\CurrentControlSet\Services\Nexthink Coordinator\params" -ErrorAction 0
+    if ($params.tcp_status -match "connected") {
+        try {
+            $dll = "$env:Nexthink\RemoteActions\nxtremoteactions.dll"
+            if (Test-path $dll) {
+                Add-Type -Path $dll
+                $result = $true
+            }
+        } catch {}
+    }
+    return $result
+}
 
 # Adapt this if needed
 $DumpFolder = 'c:\Windows\MiniDump\'
@@ -39,7 +54,6 @@ function as_local_system() {
     return $id.User.ToString() -eq "S-1-5-18"
 }
 
-
 try {
     # Check user 
     if (-not $(as_local_system)) {
@@ -52,8 +66,9 @@ try {
     }
 
     # Check if tool is available
-    $dumpFile = Get-ChildItem $DumpFolder -Filter *.dmp | Sort-Object LastWriteTime | select -Last 1 Name
-    $params += $DumpFolder + $dumpFile
+    $dumpFile = Get-ChildItem $DumpFolder -Filter *.dmp | Sort-Object LastWriteTime | Select-Object -Last 1 Name
+    
+    $params += $DumpFolder + $dumpFile.Name
     if(-not(Test-Path $dumpAnalyseCmd)) {
         throw [System.ApplicationException] "Dump util is not installed"
     }
@@ -70,4 +85,9 @@ finally {
     Remove-Item -Path $outputAnalysis -Force -ErrorAction SilentlyContinue
 }
 
-[Nxt]::WriteOutputString("MiniDumpsInformation",$text)
+if(Get-NexthinkStatus) {
+    [Nxt]::WriteOutputString("MiniDumpsInformation",$text)
+}
+else {
+    Write-Host $text
+}
